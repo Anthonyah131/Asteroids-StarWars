@@ -1,0 +1,96 @@
+script: "/main/scripts/controls.gui_script.gui_script"
+fonts {
+  name: "bungee"
+  font: "/assets/fonts/bungee.font"
+}
+textures {
+  name: "buttons.atlas"
+  texture: "/assets/icons/buttons.atlas.atlas"
+}
+nodes {
+  position {
+    x: 74.0
+    y: 149.0
+  }
+  size {
+    x: 100.0
+    y: 100.0
+  }
+  color {
+    x: 0.702
+    y: 0.702
+    z: 0.702
+  }
+  type: TYPE_BOX
+  texture: "buttons.atlas/left"
+  id: "btn_left"
+  inherit_alpha: true
+  alpha: 0.4
+}
+nodes {
+  position {
+    x: 198.0
+    y: 149.0
+  }
+  size {
+    x: 100.0
+    y: 100.0
+  }
+  color {
+    x: 0.702
+    y: 0.702
+    z: 0.702
+  }
+  type: TYPE_BOX
+  texture: "buttons.atlas/right"
+  id: "btn_right"
+  inherit_alpha: true
+  alpha: 0.4
+}
+nodes {
+  position {
+    x: 571.0
+    y: 151.0
+  }
+  size {
+    x: 100.0
+    y: 100.0
+  }
+  color {
+    x: 0.702
+    y: 0.702
+    z: 0.702
+  }
+  type: TYPE_BOX
+  texture: "buttons.atlas/up"
+  id: "btn_jump"
+  inherit_alpha: true
+  alpha: 0.4
+}
+nodes {
+  position {
+    x: 364.0
+    y: 308.0
+  }
+  scale {
+    x: 2.749412
+    y: 3.350129
+  }
+  size {
+    x: 50.0
+    y: 25.0
+  }
+  color {
+    x: 0.902
+    y: 0.302
+    z: 0.302
+  }
+  type: TYPE_TEXT
+  text: "TEXT"
+  font: "bungee"
+  id: "lbl_status"
+  line_break: true
+  inherit_alpha: true
+}
+material: "/builtins/materials/gui.material"
+adjust_reference: ADJUST_REFERENCE_PARENT

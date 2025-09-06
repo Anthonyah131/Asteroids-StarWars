@@ -1,0 +1,36 @@
+function init(self)
+	msg.post(".", "acquire_input_focus")
+	gui.set_enabled(gui.get_node("lbl_status"), false)
+end
+local function send_input(action_id, pressed)
+	-- Se le envía una señal al script del player
+	msg.post("main:/player#player", "input", {
+		action_id = hash(action_id),
+		pressed = pressed,
+		released = not pressed
+	})
+end
+function on_input(self, action_id, action)
+	-- Filtrar solo cuando hay coordenadas (mouse o touch)
+	if (action.pressed or action.released) and action.x and action.y then
+		local x, y = action.x, action.y
+		-- Se obtienen los objetos de los botones de la gui
+		local btn_left = gui.get_node("btn_left")
+		local btn_right = gui.get_node("btn_right")
+		local btn_jump = gui.get_node("btn_jump")
+		if gui.pick_node(btn_left, x, y) then
+			send_input("left", action.pressed)
+		elseif gui.pick_node(btn_right, x, y) then
+			send_input("right", action.pressed)
+		elseif gui.pick_node(btn_jump, x, y) then
+			send_input("jump", action.pressed)
+		end
+	end
+end
+
+function on_message(self, message_id, message, sender)
+	if message_id == hash("end_game") then
+		gui.set_enabled(gui.get_node("lbl_status"), true)
+		gui.set_text(gui.get_node("lbl_status"), "NIVEL COMPLETADO")
+	end
+end

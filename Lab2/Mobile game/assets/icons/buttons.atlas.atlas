@@ -1,0 +1,10 @@
+images {
+  image: "/assets/icons/left.png"
+}
+images {
+  image: "/assets/icons/right.png"
+}
+images {
+  image: "/assets/icons/up.png"
+}
+extrude_borders: 2

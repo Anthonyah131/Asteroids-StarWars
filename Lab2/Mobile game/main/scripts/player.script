@@ -1,0 +1,112 @@
+
+function init(self)
+	-- Activar entrada de teclado
+	msg.post("#", "acquire_input_focus")
+	-- Propiedades de movimiento
+	self.move_speed = 200 -- Velocidad horizontal
+	self.direction = 0 -- -1 = izquierda, 1 = derecha, 0 = quieto
+	-- Propiedades de salto
+	self.is_jumping = false -- Si está saltando
+	self.jump_speed = 750 -- Velocidad inicial del salto
+	self.gravity = -1000 -- Gravedad hacia abajo
+	self.vertical_speed = 0 -- Velocidad vertical actual
+	-- Detección de suelo
+	self.on_ground = false -- Si está tocando una plataforma
+	self.ground_contacts = 0 -- Contador de contactos con plataformas
+	self.has_key = false -- Si tiene la llave
+end
+
+local function handle_input(self, action_id, action)
+	-- Movimiento izquierda y derecha
+	if action_id == hash("left") or action_id == hash("right") then
+		local is_left = (action_id == hash("left"))
+		if action.pressed or action.repeated then
+			self.direction = is_left and -1 or 1
+			sprite.set_hflip("#sprite", is_left) -- Voltear sprite
+			sprite.play_flipbook("#sprite", "run") -- Animación correr
+		elseif action.released then
+			self.direction = 0
+			sprite.play_flipbook("#sprite", "idle") -- Animación quieto
+		end
+	end
+	-- Salto con barra espaciadora
+	if action_id == hash("jump") and action.pressed then
+		if self.on_ground and not self.is_jumping then
+			self.is_jumping = true
+			self.vertical_speed = self.jump_speed
+			sprite.play_flipbook("#sprite", "jump") -- Animación salto
+			sound.play("#jump")
+		end
+	end
+end
+
+function on_input(self, action_id, action)
+	handle_input(self, action_id, action)
+end
+
+function update(self, dt)
+	local pos = go.get_position()
+	-- Mover horizontalmente
+	if self.direction ~= 0 then
+		pos.x = pos.x + self.direction * self.move_speed * dt
+	end
+	-- Aplicar física de salto
+	if self.is_jumping then
+		self.vertical_speed = self.vertical_speed + self.gravity * dt -- Aplicar gravedad
+		pos.y = pos.y + self.vertical_speed * dt -- Mover verticalmente
+		-- Terminar salto al tocar el suelo
+		if self.vertical_speed <= 0 and self.on_ground then
+			self.is_jumping = false
+			self.vertical_speed = 0
+			-- Volver a animación correcta
+			sprite.play_flipbook("#sprite", self.direction == 0 and "idle" or "run")
+		end
+	end
+	-- Actualizar posición del personaje
+	go.set_position(pos)
+end
+
+function on_message(self, message_id, message, sender)
+	-- Detectar cuando toca una plataforma
+	if message_id == hash("contact_point_response") then
+		if message.normal.y > 0.7 then -- Normal hacia arriba = suelo
+			self.ground_contacts = self.ground_contacts + 1
+			self.on_ground = true
+		end
+		-- Detectar cuando deja de tocar una plataforma
+	elseif message_id == hash("contact_point_removed") then
+		if message.normal.y > 0.7 then
+			self.ground_contacts = math.max(0, self.ground_contacts - 1)
+			if self.ground_contacts == 0 then
+				self.on_ground = false -- Ya no está en el suelo
+			end
+		end
+	end
+
+	if message.other_group == hash("key") then
+		if not self.has_key then
+			self.has_key = true
+			go.delete(message.other_id) -- Eliminar la llave
+			print("¡Llave recolectada!")
+			sound.play("#item")
+		end
+	end
+	-- COLISIÓN WITH CANDADO (grupo "lock")
+	if message.other_group == hash("lock") then
+		if self.has_key then
+			print("¡Nivel completado!")
+			sound.play("#unlock")
+			-- Aquí puedes agregar la lógica para terminar el nivel
+			-- Por ejemplo: msg.post("/level#script", "level_completed")
+			go.delete(message.other_id) -- Eliminar el candado
+		else
+			print("Necesitas la llave para abrir este candado")
+		end
+	end
+
+	if message_id == hash("input") then 
+		handle_input(self, message.action_id, message)
+	end
+end
+
+

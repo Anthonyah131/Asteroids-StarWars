@@ -1,0 +1,7 @@
+Ejecutar Space Rock.exe
+
+Usar las flechas del teclado para mover y el click del mouse para disparar
+
+Con P se puede pausar el juego 
+
+Se utilizo Game Maker
